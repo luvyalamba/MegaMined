@@ -36,7 +36,7 @@ struct SensorPacket {
     uint8_t isHighPrecision   : 1;
     uint8_t isTimeValid       : 1;
     uint8_t reserved          : 5;
-    uint8_t packetSequence;     // 1 byte
+    uint32_t packetSequence;     // 1 byte
 };
 #pragma pack(pop)
 
@@ -71,7 +71,7 @@ struct DecodedTelemetry {
     bool vibrationDetected;
     bool isHighPrecision;
     bool isTimeValid;
-    uint8_t packetSequence;
+    uint32_t packetSequence;
 };
 
 class LoRaDecoder {

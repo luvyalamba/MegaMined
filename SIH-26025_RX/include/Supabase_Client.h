@@ -49,8 +49,8 @@ public:
         HTTPClient http;
 
         // Target Supabase Endpoint (Table name: "telemetry")
-        // 'on_conflict=node_number' performs an UPSERT (updates row if node_number exists)
-        String endpoint = _supabaseUrl + "/rest/v1/telemetry?on_conflict=node_number";
+        // 'on_conflict=node_number,sequence_number' matches the composite unique constraint
+        String endpoint = _supabaseUrl + "/rest/v1/telemetry?on_conflict=node_number,sequence_number";
 
         http.begin(endpoint);
 

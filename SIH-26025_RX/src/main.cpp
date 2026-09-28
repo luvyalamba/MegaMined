@@ -6,12 +6,12 @@
 #include "Supabase_Client.h"
 
 // --- Wi-Fi & Supabase Configuration ---
-const char* WIFI_SSID       = "Aviraj's Phone";
-const char* WIFI_PASSWORD   = "sarabha3";
+const char* WIFI_SSID       = "Airtel_ravi";
+const char* WIFI_PASSWORD   = "Ishu@#25";
 
 // Example format: "https://xyzcompany.supabase.co"
 const char* SUPABASE_URL    = "https://umhkwsyytcweuoftyhuc.supabase.co";
-const char* SUPABASE_KEY    = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVtaGt3c3l5dGN3ZXVvZnR5aHVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk4MjAwNzUsImV4cCI6MjEwNTM5NjA3NX0.GJgUW65nteoBPTZ7hYndaauwxaX3Vv4bEzzQ8sqGKPI";
+const char* SUPABASE_KEY    = "sb_publishable_6QR2I77tMKJK4Wxv-mpCyQ_0WIJVt3X";
 
 // --- Hardware Pin Configurations ---
 #define LORA_SS_PIN     5

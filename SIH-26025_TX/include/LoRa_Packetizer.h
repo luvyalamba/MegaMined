@@ -46,14 +46,14 @@ struct SensorPacket {
     uint8_t isHighPrecision   : 1; // 1 bit flag
     uint8_t isTimeValid       : 1; // 1 bit flag
     uint8_t reserved          : 5; // Padding bits for alignment
-    uint8_t packetSequence;        // Rolling counter to track dropped packets
+    uint32_t packetSequence;        // Rolling counter to track dropped packets
 };
 #pragma pack(pop)
 
 class LoRaPacketizer {
 private:
     SensorPacket _packet;
-    uint8_t _sequenceNumber = 0;
+    uint32_t _sequenceNumber = 0;
     uint32_t _nodeNumber = 1; // Default Node Number
 
 public:
