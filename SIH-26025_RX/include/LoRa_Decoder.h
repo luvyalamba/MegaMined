@@ -37,6 +37,9 @@ struct SensorPacket {
     uint8_t isTimeValid       : 1;
     uint8_t reserved          : 5;
     uint32_t packetSequence;     // 1 byte
+
+    int8_t  anomalyVerdict;     // 1 byte (1 = NORMAL, -1 = ANOMALY)
+    int16_t anomalyScoreScaled;
 };
 #pragma pack(pop)
 
@@ -72,6 +75,9 @@ struct DecodedTelemetry {
     bool isHighPrecision;
     bool isTimeValid;
     uint32_t packetSequence;
+
+    int8_t  anomalyVerdict;
+    float anomalyScore;
 };
 
 class LoRaDecoder {
@@ -131,6 +137,9 @@ public:
         data.isTimeValid       = _rawPacket.isTimeValid;
         data.packetSequence    = _rawPacket.packetSequence;
 
+        data.anomalyVerdict = _rawPacket.anomalyVerdict;
+        data.anomalyScore  = _rawPacket.anomalyScoreScaled / 1000.0f;
+
         return data;
     }
 
@@ -139,7 +148,7 @@ public:
 
         Serial.println(F("\n================= RX TELEMETRY PACKET ================="));
         Serial.print(F("Node ID           : ")); Serial.println(t.nodeNumber);
-        Serial.print(F("Sequence No.      : ")); Serial.println(t.packetSequence);
+        Serial.print(F("Sequence No.      : ")); Serial.println(t.packetSequence);/*
         Serial.print(F("Signal Status     : RSSI = ")); Serial.print(rssi);
         Serial.print(F(" dBm | SNR = ")); Serial.print(snr); Serial.println(F(" dB"));
 
@@ -170,7 +179,11 @@ public:
         Serial.print(F(" | Yaw: ")); Serial.println(t.angleYaw, 1);
 
         Serial.print(F("System Flags      : HighPrec=")); Serial.print(t.isHighPrecision ? "YES" : "NO");
-        Serial.print(F(" | VibeAlert=")); Serial.println(t.vibrationDetected ? "YES" : "NO");
+        Serial.print(F(" | VibeAlert=")); Serial.println(t.vibrationDetected ? "YES" : "NO");*/
+
+        Serial.print(F("Anomaly Check     : Verdict=")); 
+        Serial.print((t.anomalyVerdict == 1) ? "NORMAL" : "ANOMALY");
+        Serial.print(F(" | Score=")); Serial.println(t.anomalyScore, 4);
         Serial.println(F("=======================================================\n"));
     }
 };

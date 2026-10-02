@@ -62,7 +62,7 @@ public:
         http.addHeader("Prefer", "resolution=merge-duplicates");
 
         // Construct JSON Payload
-        StaticJsonDocument<512> doc;
+        StaticJsonDocument<1024> doc;
 
         doc["node_number"]         = t.nodeNumber;
         doc["sequence_number"]     = t.packetSequence;
@@ -103,6 +103,10 @@ public:
         // Flags
         doc["vibration_detected"]  = t.vibrationDetected;
         doc["is_high_precision"]   = t.isHighPrecision;
+
+        //Iso_Forest_data
+        doc["anomaly_verdict"]  = t.anomalyVerdict;
+        doc["anomaly_score"]   = t.anomalyScore;
 
         // Optional Local RX Coordinates
         if (rxLat != 0.0 || rxLon != 0.0) {

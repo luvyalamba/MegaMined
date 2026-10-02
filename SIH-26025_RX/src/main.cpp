@@ -9,7 +9,6 @@
 const char* WIFI_SSID       = "Airtel_ravi";
 const char* WIFI_PASSWORD   = "Ishu@#25";
 
-// Example format: "https://xyzcompany.supabase.co"
 const char* SUPABASE_URL    = "https://umhkwsyytcweuoftyhuc.supabase.co";
 const char* SUPABASE_KEY    = "sb_publishable_6QR2I77tMKJK4Wxv-mpCyQ_0WIJVt3X";
 
@@ -39,10 +38,11 @@ void checkIncomingLoRa() {
     int packetSize = LoRa.parsePacket();
     if (packetSize == 0) return;
 
-    uint8_t rxBuffer[sizeof(SensorPacket)];
-    
+    // Check packet size against decoder expected structure size
     if (packetSize == decoder.getExpectedSize()) {
+        uint8_t rxBuffer[sizeof(SensorPacket)];
         int bytesRead = 0;
+
         while (LoRa.available() && bytesRead < packetSize) {
             rxBuffer[bytesRead++] = (uint8_t)LoRa.read();
         }
@@ -51,21 +51,28 @@ void checkIncomingLoRa() {
             int rssi = LoRa.packetRssi();
             float snr = LoRa.packetSnr();
 
-            // 1. Output to local serial
+            // 1. Print decoded telemetry to local Serial
             decoder.printTelemetry(rssi, snr);
 
             // 2. Extract decoded struct
             DecodedTelemetry telemetry = decoder.getTelemetry();
 
-            // 3. Send API Request to Supabase
+            // 3. Send payload to Supabase database
             double rxLat = rxGps.location.isValid() ? rxGps.location.lat() : 0.0;
             double rxLon = rxGps.location.isValid() ? rxGps.location.lng() : 0.0;
 
             supabase.sendTelemetryToSupabase(telemetry, rxLat, rxLon);
         } else {
-            Serial.println(F("[LoRa RX Error] Packet memory structure mismatch!"));
+            Serial.println(F("[LoRa RX Error] Buffer parsing failed!"));
         }
     } else {
+        // Size mismatch warning
+        Serial.print(F("[LoRa RX Warning] Expected "));
+        Serial.print(decoder.getExpectedSize());
+        Serial.print(F(" bytes, but got "));
+        Serial.print(packetSize);
+        Serial.println(F(" bytes! Packet dropped."));
+
         while (LoRa.available()) LoRa.read();
     }
 }
@@ -76,13 +83,13 @@ void setup() {
 
     Serial.println(F("--- Initializing LoRa RX + GPS + Supabase Node ---"));
 
-    // 1. Initialize Wi-Fi
+    // 1. Initialize Wi-Fi & Supabase connection
     supabase.beginWiFi();
 
     // 2. Initialize Local GPS
     gpsSerial.begin(RX_GPS_BAUD, SERIAL_8N1, RX_GPS_RX_PIN, RX_GPS_TX_PIN);
 
-    // 3. Initialize LoRa
+    // 3. Initialize LoRa Hardware
     LoRa.setPins(LORA_SS_PIN, LORA_RST_PIN, LORA_DIO0_PIN);
     if (!LoRa.begin(LORA_FREQ_HZ)) {
         Serial.println(F("Critical Error: LoRa setup failed!"));
@@ -93,7 +100,9 @@ void setup() {
     LoRa.setSignalBandwidth(125E3);
     LoRa.setCodingRate4(5);
 
-    Serial.println(F("[LoRa] Module active. Listening for telemetry..."));
+    Serial.print(F("[LoRa] Listening on 433 MHz. Expected packet size: "));
+    Serial.print(decoder.getExpectedSize());
+    Serial.println(F(" bytes."));
 }
 
 void loop() {

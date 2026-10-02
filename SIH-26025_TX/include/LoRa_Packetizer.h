@@ -47,13 +47,17 @@ struct SensorPacket {
     uint8_t isTimeValid       : 1; // 1 bit flag
     uint8_t reserved          : 5; // Padding bits for alignment
     uint32_t packetSequence;        // Rolling counter to track dropped packets
+
+    // 8. Isolation Forest Outputs (3 bytes) -- NEW FIELDS
+    int8_t  anomalyVerdict;     // 1 = Normal, -1 = Anomaly
+    int16_t anomalyScoreScaled;
 };
 #pragma pack(pop)
 
 class LoRaPacketizer {
 private:
     SensorPacket _packet;
-    uint32_t _sequenceNumber = 0;
+    uint8_t _sequenceNumber = 0;
     uint32_t _nodeNumber = 1; // Default Node Number
 
 public:
@@ -72,8 +76,13 @@ public:
         return _nodeNumber;
     }
 
+    void setAnomalyResults(int verdict, float score) {
+        _packet.anomalyVerdict     = (int8_t)verdict;
+        _packet.anomalyScoreScaled = (int16_t)constrain(score * 1000.0f, -32768.0f, 32767.0f);
+    }
+
     // Populate binary packet directly from IntegratedAlgorithm output
-    const SensorPacket& packData(const IntegratedAlgorithm &algo) {
+    const SensorPacket& packData(const IntegratedAlgorithm &algo, int verdict = 0, float score = 0.0f) {
         // Set Node Number
         _packet.nodeNumber = _nodeNumber;
 
@@ -113,6 +122,9 @@ public:
         _packet.isHighPrecision   = algo.gpsHighPrecision;
         _packet.isTimeValid       = algo.isTimeValid ? 1 : 0;
         _packet.packetSequence    = _sequenceNumber++;
+        
+        _packet.anomalyVerdict     = (int8_t)verdict;
+        _packet.anomalyScoreScaled = (int16_t)constrain(score * 1000.0f, -32768.0f, 32767.0f);
 
         return _packet;
     }
@@ -138,6 +150,8 @@ public:
         Serial.print(F("Node Number  : ")); Serial.println(_packet.nodeNumber);
         Serial.print(F("Payload Size : ")); Serial.print(getPacketSize()); Serial.println(F(" bytes"));
         Serial.print(F("Sequence No. : ")); Serial.println(_packet.packetSequence);
+        Serial.print(F("Verdict      : ")); Serial.println(_packet.anomalyVerdict);
+        Serial.print(F("Score : ")); Serial.println(_packet.anomalyScoreScaled / 1000.0f, 4);
         Serial.print(F("Packed UTC   : ")); 
         if (_packet.isTimeValid) {
             if (_packet.utcHour < 10) Serial.print(F("0"));
