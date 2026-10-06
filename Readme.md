@@ -1,6 +1,3 @@
-Team ID:
-H044
-
 Team Name (Registered on portal):
 MegaMined
 
