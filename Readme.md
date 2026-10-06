@@ -2,7 +2,7 @@ Team Name (Registered on portal):
 MegaMined
 
 Problem Statement ID:
-26025
+SIH26025
 
 Problem Statement Title:
 Development of an AI-enabled Low Cost Real Time Mine Subsidence Monitoring, Prediction and Early Warning System for Underground Coal Mines in India
